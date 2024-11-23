@@ -9,45 +9,29 @@ $router->get('/profil/([a-zA-Z0-9_-]+)', 'ViewController@pages');
 $router->get('/pelayanan/([a-zA-Z0-9_-]+)', 'ViewController@pages');
 $router->get('/publikasi/([a-zA-Z0-9_-]+)', 'ViewController@pages');
 
+$router->get('/images/(\w+\.(jpg|jpeg|png|gif|bmp|webp|svg))', function ($filename) {
+    // Lokasi asli file di folder "storage/images"
+    $filePath = __DIR__ . '/../storage/images/' . $filename;
 
-$router->get('/images/([a-zA-Z0-9_-]+)\.(jpg|jpeg|png|gif|bmp|webp|svg)', function ($image, $ext) {
-
-    $filePath = __DIR__ . '/storage/image/' . $image . '.' . $ext;
-
+    // Periksa apakah file ada
     if (file_exists($filePath)) {
-        switch (strtolower($ext)) {
-            case 'jpg':
-            case 'jpeg':
-                $mimeType = 'image/jpeg';
-                break;
-            case 'png':
-                $mimeType = 'image/png';
-                break;
-            case 'gif':
-                $mimeType = 'image/gif';
-                break;
-            case 'bmp':
-                $mimeType = 'image/bmp';
-                break;
-            case 'webp':
-                $mimeType = 'image/webp';
-                break;
-            case 'svg':
-                $mimeType = 'image/svg+xml';
-                break;
-            default:
-                $mimeType = 'application/octet-stream';
-                break;
-        }
+        // Dapatkan MIME type
+        $mimeType = mime_content_type($filePath);
 
+        // Set header untuk response
         header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($filePath));
 
+        // Baca file dan kirimkan ke browser
         readfile($filePath);
+        exit;
     } else {
+        // Tampilkan error jika file tidak ditemukan
         header('HTTP/1.1 404 Not Found');
-        echo 'File tidak ditemukan';
+        echo "File tidak ditemukan.";
     }
 });
+
 
 
 $router->set404(function () {
